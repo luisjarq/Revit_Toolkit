@@ -191,6 +191,7 @@
     <Compile Include="Convert\Revit\ToBHoM\Family.cs" />
     <Compile Include="Convert\Revit\ToRevit\ElementType.cs" />
     <Compile Include="Convert\Revit\ToRevit\Family.cs" />
+    <Compile Include="Convert\Structure\ToRevit\TrussAssembly.cs" />
     <Compile Include="Modify\AddAdjacentSpaceId.cs" />
     <Compile Include="Modify\LoadFamily.cs" />
     <Compile Include="Modify\Move.cs" />

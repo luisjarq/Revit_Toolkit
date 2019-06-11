@@ -216,6 +216,12 @@ namespace BH.UI.Revit.Engine
             if (aFamilyInstance == null)
                 return null;
 
+            Parameter parameter = aFamilyInstance.get_Parameter(BuiltInParameter.Z_JUSTIFICATION);
+            parameter.Set((int)Autodesk.Revit.DB.Structure.ZJustification.Top);
+
+            Autodesk.Revit.DB.Structure.StructuralFramingUtils.DisallowJoinAtEnd(aFamilyInstance, 0);
+            Autodesk.Revit.DB.Structure.StructuralFramingUtils.DisallowJoinAtEnd(aFamilyInstance, 1);
+
             if (pushSettings.CopyCustomData)
             {
                 BuiltInParameter[] paramsToIgnore = new BuiltInParameter[]

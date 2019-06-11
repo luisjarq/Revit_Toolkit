@@ -65,12 +65,19 @@ namespace BH.UI.Revit.Adapter
             bool aResult = false;
             if (!aDocument.IsModifiable && !aDocument.IsReadOnly)
             {
-                //Transaction has to be opened
-                using (Transaction aTransaction = new Transaction(aDocument, "Create"))
-                {
-                    aTransaction.Start();
+                //Truss hack:
+                if (objects.Any(x => x is CustomObject))
                     aResult = Create(objects, UIControlledApplication, aDocument, RevitSettings);
-                    aTransaction.Commit();
+
+                //Transaction has to be opened
+                else
+                {
+                    using (Transaction aTransaction = new Transaction(aDocument, "Create"))
+                    {
+                        aTransaction.Start();
+                        aResult = Create(objects, UIControlledApplication, aDocument, RevitSettings);
+                        aTransaction.Commit();
+                    }
                 }
             }
             else

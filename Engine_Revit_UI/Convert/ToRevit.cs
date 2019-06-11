@@ -27,6 +27,7 @@ using BH.oM.Adapters.Revit.Settings;
 using BH.oM.Adapters.Revit.Elements;
 using BHP = BH.oM.Physical.Materials;
 using BHC = BH.oM.Physical.Constructions;
+using BH.oM.Base;
 using BH.oM.Geometry;
 using BH.oM.Geometry.CoordinateSystem;
 using BH.oM.Environment.Elements;
@@ -173,6 +174,13 @@ namespace BH.UI.Revit.Engine
             pushSettings = pushSettings.DefaultIfNull();
 
             return ToRevitFamilyInstance(framingElement, document, pushSettings);
+        }
+
+        /***************************************************/
+
+        public static AssemblyInstance ToRevit(this CustomObject trussObject, Document document, PushSettings pushSettings = null)
+        {
+            return ToLydiaTruss(trussObject, document);
         }
 
         /***************************************************/
