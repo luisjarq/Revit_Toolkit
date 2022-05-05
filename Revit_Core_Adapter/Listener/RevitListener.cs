@@ -29,6 +29,7 @@ using BH.oM.Adapter;
 using BH.oM.Adapters.Revit.Settings;
 using BH.oM.Base;
 using BH.oM.Data.Requests;
+using BH.Revit.Engine.Core.ElementIds;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -195,6 +196,9 @@ namespace BH.Revit.Adapter.Core
             // Make sure the button visibility is OK after startup (Revit likes to mess it if the buttons are pinned to quick access toolbar).
             uIControlledApplication.Idling += InitializeButtonVisibility;
 
+            // Register failuredefinirion
+
+            var fd = FailureDefinition.CreateFailureDefinition(new FailureDefinitionId(RegisteredElementIds.FDRemovedGetAnalyticalModelGUID), FailureSeverity.Error, "Error, not implemented yet, AnalyticalModel changed to AnalyticalElement, method getAnalyticalModel removed an API 2023");
             return Result.Succeeded;
         }
 

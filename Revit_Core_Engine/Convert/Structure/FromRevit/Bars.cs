@@ -51,7 +51,9 @@ namespace BH.Revit.Engine.Core
         [Output("bars", "Collection of BH.oM.Structure.Elements.Bars resulting from converting the input Revit FamilyInstance.")]
         public static List<Bar> BarsFromRevit(this FamilyInstance familyInstance, RevitSettings settings = null, Dictionary<string, List<IBHoMObject>> refObjects = null)
         {
-            settings = settings.DefaultIfNull();
+#if (REVIT2018 || REVIT2019 || REVIT2020 || REVIT2021 || REVIT2022)
+{
+settings = settings.DefaultIfNull();
 
             List<Bar> bars = refObjects.GetValues<Bar>(familyInstance.Id);
             if (bars != null)
@@ -153,6 +155,13 @@ namespace BH.Revit.Engine.Core
 
             refObjects.AddOrReplace(familyInstance.Id, bars);
             return bars;
+}
+#else
+            {
+                return new List<Bar>();
+            }
+#endif
+
         }
 
         /***************************************************/

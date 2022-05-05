@@ -48,12 +48,12 @@ namespace BH.Revit.Engine.Core
         [Output("definition", "Revit parameter Definition created based on the input properties.")]
         public static Definition Parameter(Document document, string parameterName, string typeName, string groupName, bool instance, IEnumerable<string> categoryNames, bool shared, string discipline = "")
         {
-            List<ParameterType> parameterTypes = new List<ParameterType>();
-            foreach (ParameterType pt in Enum.GetValues(typeof(ParameterType)))
+            List<ForgeTypeId> parameterTypes = new List<ForgeTypeId>();
+            foreach (ForgeTypeId pt in Enum.GetValues(typeof(SpecTypeId)))
             {
                 try
                 {
-                    if (LabelUtils.GetLabelFor(pt) == typeName)
+                    if (pt.TypeId == typeName)
                         parameterTypes.Add(pt);
                 }
                 catch
@@ -62,7 +62,7 @@ namespace BH.Revit.Engine.Core
                 }
             }
             
-            ParameterType parameterType = ParameterType.Invalid;
+            ForgeTypeId parameterType = new ForgeTypeId();
             if (parameterTypes.Count == 0)
             {
                 BH.Engine.Base.Compute.RecordError($"Parameter type named {typeName} does not exist.");
@@ -80,7 +80,7 @@ namespace BH.Revit.Engine.Core
                 else if (!string.IsNullOrWhiteSpace(discipline))
                     parameterType = parameterTypes.FirstOrDefault(x => x.ToString().StartsWith(discipline));
 
-                if (parameterType == ParameterType.Invalid)
+                if (parameterType.Empty())
                 {
                     BH.Engine.Base.Compute.RecordError("The parameter type with given name exists in more than one discipline, therefore the parameter could not be created. To successfully create the parameter, please specify it using one of the following: HVAC, Piping, Electrical, Structural.");
                     return null;

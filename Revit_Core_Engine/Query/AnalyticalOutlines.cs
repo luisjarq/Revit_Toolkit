@@ -30,6 +30,8 @@ using BH.oM.Base.Attributes;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Autodesk.Revit.ApplicationServices;
+using BH.Revit.Engine.Core.ElementIds;
 
 namespace BH.Revit.Engine.Core
 {
@@ -45,6 +47,8 @@ namespace BH.Revit.Engine.Core
         [Output("outlines", "The analytical outlines of the host object.")]
         public static List<ICurve> AnalyticalOutlines(this HostObject hostObject, RevitSettings settings = null)
         {
+#if (REVIT2018 || REVIT2019 || REVIT2020|| REVIT2021|| REVIT2022)
+            {
             AnalyticalModel analyticalModel = hostObject.GetAnalyticalModel();
             if (analyticalModel == null)
             {
@@ -64,15 +68,21 @@ namespace BH.Revit.Engine.Core
             List<ICurve> result = BH.Engine.Geometry.Compute.IJoin(wallCurves, settings.DistanceTolerance).ConvertAll(c => c as ICurve);
             if (result.Any(x => !x.IIsClosed(settings.DistanceTolerance)))
             {
+            {
                 hostObject.NonClosedOutlineWarning();
                 return null;
             }
 
             return result;
+        }}
+#else
+            {
+                FailureMessage message = new FailureMessage(Application.GetFailureDefinitionRegistry().FindFailureDefinition(new FailureDefinitionId(RegisteredElementIds.FDRemovedGetAnalyticalModelGUID)).GetId());
+                //throw new System.Exception("Not implemented yet, AnalyticalModel changed to AnalyticalElement");
+                return new List<ICurve>();
+            }
+#endif
+            /***************************************************/
         }
-
-        /***************************************************/
     }
 }
-
-

@@ -199,7 +199,7 @@ namespace BH.Revit.Engine.Core
             if (!CheckIfNotNull(parameter, request))
                 return false;
 
-            if (parameter.HasValue && parameter.StorageType == StorageType.Integer && parameter.Definition.ParameterType == ParameterType.YesNo)
+            if (parameter.HasValue && parameter.StorageType == StorageType.Integer && parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
             {
                 int paramValue = parameter.AsInteger();
                 return (request.Value && paramValue == 1) || (!request.Value && paramValue == 0);
@@ -219,7 +219,7 @@ namespace BH.Revit.Engine.Core
             if (!CheckIfNotNull(parameter, request))
                 return false;
 
-            if (parameter.HasValue && parameter.StorageType == StorageType.Integer && parameter.Definition.ParameterType != ParameterType.YesNo)
+            if (parameter.HasValue && parameter.StorageType == StorageType.Integer && parameter.Definition.GetDataType() != SpecTypeId.Boolean.YesNo)
             {
                 int paramValue = parameter.AsInteger();
                 switch (request.NumberComparisonType)
@@ -273,8 +273,8 @@ namespace BH.Revit.Engine.Core
 
                 if (request.ConvertUnits)
                 {
-                    comparisonValue = comparisonValue.FromSI(parameter.Definition.GetSpecTypeId());
-                    comparisonTolerance = comparisonTolerance.FromSI(parameter.Definition.GetSpecTypeId());
+                    comparisonValue = comparisonValue.FromSI(parameter.Definition.GetDataType());
+                    comparisonTolerance = comparisonTolerance.FromSI(parameter.Definition.GetDataType());
                 }
 
                 switch (request.NumberComparisonType)
@@ -313,7 +313,7 @@ namespace BH.Revit.Engine.Core
                 string paramValue;
                 if (parameter.StorageType == StorageType.String)
                     paramValue = parameter.AsString();
-                else if (parameter.StorageType == StorageType.ElementId || (parameter.StorageType == StorageType.Integer && parameter.Definition.ParameterType != ParameterType.YesNo))
+                else if (parameter.StorageType == StorageType.ElementId || (parameter.StorageType == StorageType.Integer && parameter.Definition.GetDataType() != SpecTypeId.Boolean.YesNo))
                     paramValue = parameter.AsValueString();
                 else
                     return false;

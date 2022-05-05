@@ -46,6 +46,8 @@ namespace BH.Revit.Engine.Core
         [Output("floor", "Revit Floor resulting from converting the input BH.oM.Physical.Elements.Floor.")]
         public static Floor ToRevitFloor(this oM.Physical.Elements.Floor floor, Document document, RevitSettings settings = null, Dictionary<Guid, List<int>> refObjects = null)
         {
+#if (REVIT2018 || REVIT2019 || REVIT2020 || REVIT2021 || REVIT2022)
+            {
             if (floor == null || floor.Construction == null || document == null)
                 return null;
 
@@ -144,10 +146,113 @@ namespace BH.Revit.Engine.Core
 
             refObjects.AddOrReplace(floor, revitFloor);
             return revitFloor;
+            }
+#else
+            {
+                if (floor == null || floor.Construction == null || document == null)
+                    return null;
+
+                Floor revitFloor = refObjects.GetValue<Floor>(document, floor.BHoM_Guid);
+                if (revitFloor != null)
+                    return revitFloor;
+
+                PlanarSurface planarSurface = floor.Location as PlanarSurface;
+                if (planarSurface == null)
+                    return null;
+
+                settings = settings.DefaultIfNull();
+
+                FloorType floorType = floor.ElementType(document, settings);
+                if (floorType == null)
+                {
+                    Compute.ElementTypeNotFoundWarning(floor);
+                    return null;
+                }
+
+                double bottomElevation = floor.Location.IBounds().Min.Z;
+                Level level = document.LevelBelow(bottomElevation.FromSI(SpecTypeId.Length), settings);
+
+                oM.Geometry.Plane sketchPlane = new oM.Geometry.Plane { Origin = new BH.oM.Geometry.Point { Z = bottomElevation }, Normal = Vector.ZAxis };
+                ICurve curve = planarSurface.ExternalBoundary.IProject(sketchPlane);
+                CurveLoop curveArray = CurveLoop.Create(curve.IToRevitCurves());
+
+                BH.oM.Geometry.Plane slabPlane = planarSurface.FitPlane();
+                Vector normal = slabPlane.Normal;
+                if (normal.Z < 0)
+                    normal = -slabPlane.Normal;
+                XYZ dir = normal.Project(oM.Geometry.Plane.XY).ToRevit().Normalize();
+                BH.oM.Geometry.Line ln = slabPlane.PlaneIntersection(sketchPlane);
+                XYZ start = ln.ClosestPoint(curveArray.CurveArray().get_Item(0).GetEndPoint(0).PointFromRevit(), true).ToRevit();
+                Autodesk.Revit.DB.Line line = Autodesk.Revit.DB.Line.CreateBound(start, start + dir);
+                if (1 - Math.Abs(Vector.ZAxis.DotProduct(slabPlane.Normal)) <= settings.AngleTolerance)
+                {
+                    if (floorType.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StructuralFoundation)
+                        //revitFloor = document.Create.NewFoundationSlab(curveArray, floorType, level, true, XYZ.BasisZ);
+                        revitFloor = Floor.Create(document, new List<CurveLoop>() { curveArray }, floorType.Id, level.Id, true, line, 0);
+                    else
+                        //revitFloor = document.Create.NewFloor(curveArray, floorType, level, true);
+                        revitFloor = Floor.Create(document, new List<CurveLoop>() { curveArray }, floorType.Id, level.Id);
+                }
+                else
+                {
+                    double angle = normal.Angle(Vector.ZAxis);
+                    double tan = Math.Tan(angle);
+
+
+                    revitFloor = Floor.Create(document, new List<CurveLoop>() { curveArray }, floorType.Id, level.Id, true, line, -tan);
+                    revitFloor.SetParameter(BuiltInParameter.ELEM_TYPE_PARAM, floorType.Id);
+                }
+
+                revitFloor.CheckIfNullPush(floor);
+                if (revitFloor == null)
+                    return null;
+
+                document.Regenerate();
+
+                if (planarSurface.InternalBoundaries != null)
+                {
+                    foreach (ICurve hole in planarSurface.InternalBoundaries)
+                    {
+                        document.Create.NewOpening(revitFloor, Create.CurveArray(hole.IProject(slabPlane).IToRevitCurves()), true);
+                    }
+                }
+
+                foreach (BH.oM.Physical.Elements.IOpening opening in floor.Openings)
+                {
+                    PlanarSurface openingLocation = opening.Location as PlanarSurface;
+                    if (openingLocation == null)
+                    {
+                        BH.Engine.Base.Compute.RecordWarning(String.Format("Conversion of a floor opening to Revit failed because its location is not a planar surface. Floor BHoM_Guid: {0}, Opening BHoM_Guid: {1}", floor.BHoM_Guid, opening.BHoM_Guid));
+                        continue;
+                    }
+
+                    document.Create.NewOpening(revitFloor, Create.CurveArray(openingLocation.ExternalBoundary.IToRevitCurves()), true);
+
+                    if (!(opening is BH.oM.Physical.Elements.Void))
+                        BH.Engine.Base.Compute.RecordWarning(String.Format("Revit allows only void openings in floors, therefore the BHoM opening of type {0} has been converted to a void opening. Floor BHoM_Guid: {1}, Opening BHoM_Guid: {2}", opening.GetType().Name, floor.BHoM_Guid, opening.BHoM_Guid));
+                }
+
+                double offset = revitFloor.LookupParameterDouble(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM);
+
+                // Copy parameters from BHoM object to Revit element
+                revitFloor.CopyParameters(floor, settings);
+
+                // Update the offset in case the level had been overwritten.
+                if (revitFloor.LevelId.IntegerValue != level.Id.IntegerValue)
+                {
+                    Level newLevel = document.GetElement(revitFloor.LevelId) as Level;
+                    offset += (level.ProjectElevation - newLevel.ProjectElevation).ToSI(SpecTypeId.Length);
+                }
+
+                revitFloor.SetParameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM, offset);
+
+                refObjects.AddOrReplace(floor, revitFloor);
+                return revitFloor;
+            }
+#endif
         }
-
-        /***************************************************/
     }
-}
 
+    /***************************************************/
+}
 
