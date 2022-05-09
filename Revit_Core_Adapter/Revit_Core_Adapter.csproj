@@ -228,11 +228,11 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="PresentationCore" />
-    <Reference Include="RevitAPI" Condition="'$(Configuration)'=='Debug2018' Or '$(Configuration)'=='Release2018' Or '$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
+    <Reference Include="RevitAPI" Condition="'$(Configuration)'=='Debug2018' Or '$(Configuration)'=='Release2018'">
       <HintPath>..\libs\2018\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="RevitAPIUI" Condition="'$(Configuration)'=='Debug2018' Or '$(Configuration)'=='Release2018' Or '$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
+    <Reference Include="RevitAPIUI" Condition="'$(Configuration)'=='Debug2018' Or '$(Configuration)'=='Release2018'">
       <HintPath>..\libs\2018\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -268,11 +268,11 @@
       <HintPath>..\libs\2022\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="RevitAPI" Condition="'$(Configuration)'=='Debug2023' Or '$(Configuration)'=='Release2023'">
+    <Reference Include="RevitAPI" Condition="'$(Configuration)'=='Debug2023' Or '$(Configuration)'=='Release2023' Or '$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
       <HintPath>..\libs\2023\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="RevitAPIUI" Condition="'$(Configuration)'=='Debug2023' Or '$(Configuration)'=='Release2023'">
+    <Reference Include="RevitAPIUI" Condition="'$(Configuration)'=='Debug2023' Or '$(Configuration)'=='Release2023' Or '$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
       <HintPath>..\libs\2023\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>

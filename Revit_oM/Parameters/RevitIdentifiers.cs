@@ -61,13 +61,15 @@ namespace BH.oM.Adapters.Revit.Parameters
 
         [Description("Name of the link document containing the Revit element correspondent to the BHoM object that carries this fragment. Empty if the Revit element is not a link element.")]
         public virtual string LinkDocument { get; } = "";
+        [Description("Name of the document containing the Revit element correspondent to the BHoM object that carries this fragment. Empty if the Revit element is a link element.")]
+        public virtual string SelfDocument { get; } = "";
 
 
         /***************************************************/
         /****            Public Constructors            ****/
         /***************************************************/
 
-        public RevitIdentifiers(string persistentId = "", int elementId = -1, string categoryName = "", string familyName = "", string familyTypeName = "", int familyTypeId = -1, string workset = "", int ownerViewId = -1, int parentElementId = -1, string linkDocument = "")
+        public RevitIdentifiers(string persistentId = "", int elementId = -1, string categoryName = "", string familyName = "", string familyTypeName = "", int familyTypeId = -1, string workset = "", int ownerViewId = -1, int parentElementId = -1, string linkDocument = "", string selfDocument = "")
         {
             PersistentId = persistentId;
             ElementId = elementId;
@@ -79,6 +81,7 @@ namespace BH.oM.Adapters.Revit.Parameters
             OwnerViewId = ownerViewId;
             ParentElementId = parentElementId;
             LinkDocument = linkDocument;
+            SelfDocument = selfDocument;
         }
 
         /***************************************************/

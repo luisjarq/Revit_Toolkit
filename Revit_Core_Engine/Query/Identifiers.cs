@@ -93,6 +93,7 @@ namespace BH.Revit.Engine.Core
             int ownerViewId = -1;
             int parentElementId = -1;
             string linkPath = "";
+            string selfDocument = "";
 
             Parameter parameter = element.get_Parameter(BuiltInParameter.ELEM_CATEGORY_PARAM);
             if (parameter != null)
@@ -129,8 +130,11 @@ namespace BH.Revit.Engine.Core
 
             if (element.Document.IsLinked)
                 linkPath = element.Document.Title;
+            else {
+                selfDocument = element.Document.PathName;
+            }
 
-            return new RevitIdentifiers(element.UniqueId, element.Id.IntegerValue, categoryName, familyName, familyTypeName, familyTypeId, workset, ownerViewId, parentElementId, linkPath);
+            return new RevitIdentifiers(element.UniqueId, element.Id.IntegerValue, categoryName, familyName, familyTypeName, familyTypeId, workset, ownerViewId, parentElementId, linkPath, selfDocument);
         }
 
         /***************************************************/
